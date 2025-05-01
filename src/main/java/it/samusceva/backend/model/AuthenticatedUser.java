@@ -27,7 +27,8 @@ public final class AuthenticatedUser {
     public static final String PREFERRED_USERNAME = "email";
 
     public static Username username() {
-        return authentication().map(AuthenticatedUser::readPrincipal)
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(AuthenticatedUser::readPrincipal)
                 .flatMap(Username::of)
                 .orElseThrow(NotAuthenticatedUserException::new);
     }
@@ -59,42 +60,6 @@ public final class AuthenticatedUser {
         }
 
         throw new UnknownAuthenticationException();
-    }
-
-    /**
-     * Get the authenticated user roles
-     *
-     * @return The authenticated user roles or empty roles if the user is not authenticated
-     */
-    public static Roles roles() {
-        return authentication().map(authentication ->
-                        new Roles(authentication.getAuthorities().stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .map(Role::from)
-                                .collect(Collectors.toSet()))
-                )
-                .orElse(Roles.EMPTY);
-    }
-
-    /**
-     * Get the authenticated user token attributes
-     *
-     * @return The authenticated user token attributes
-     * @throws NotAuthenticatedUserException  if the user is not authenticated
-     * @throws UnknownAuthenticationException if the authentication scheme is unknown
-     */
-    public static Map<String, Object> attributes() {
-        Authentication token = authentication().orElseThrow(NotAuthenticatedUserException::new);
-
-        if (token instanceof JwtAuthenticationToken jwtAuthenticationToken) {
-            return jwtAuthenticationToken.getTokenAttributes();
-        }
-
-        throw new UnknownAuthenticationException();
-    }
-
-    private static Optional<Authentication> authentication() {
-        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication());
     }
 
     public static List<String> extractRolesFromToken(Jwt jwtToken) {

@@ -34,7 +34,7 @@ spring:
         connection:
           provider_disables_autocommit: true
         order_inserts: true
-        default_schema: spring_keycloak
+        default_schema: sak_keycloak
     hibernate:
       ddl-auto: none
       naming:
@@ -43,7 +43,7 @@ spring:
     open-in-view: false
   liquibase:
     change-log: classpath:db/changelog/master.xml
-    default-schema: spring_keycloak
+    default-schema: sak_keycloak
     contexts: dev
     drop-first: true
   security:
